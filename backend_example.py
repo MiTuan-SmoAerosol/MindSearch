@@ -1,5 +1,5 @@
 import json
-
+import ipdb
 import requests
 
 # Define the backend URL
@@ -13,11 +13,12 @@ def get_response(query):
     data = {"inputs": query}
 
     # Send the request to the backend
-    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=20, stream=True)
+    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=6000, stream=True)
 
     # Process the streaming response
     for chunk in response.iter_lines(chunk_size=8192, decode_unicode=False, delimiter=b"\n"):
         if chunk:
+            # ipdb.set_trace()
             decoded = chunk.decode("utf-8")
             if decoded == "\r":
                 continue
@@ -25,8 +26,10 @@ def get_response(query):
                 decoded = decoded[6:]
             elif decoded.startswith(": ping - "):
                 continue
+            # ipdb.set_trace()
             response_data = json.loads(decoded)
             agent_return = response_data["response"]
+            ipdb.set_trace()
             node_name = response_data["current_node"]
             print(f"Node: {node_name}, Response: {agent_return['response']}")
 
